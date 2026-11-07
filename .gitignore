@@ -18,6 +18,4 @@ __pycache__/
 .postman/
 postman/
 
-# Python bytecode
-__pycache__/
 *.pyc
