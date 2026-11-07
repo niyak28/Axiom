@@ -1,0 +1,39 @@
+-- 1. Active & Historical Lectures
+CREATE TABLE lectures (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  professor_name TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  is_active BOOLEAN DEFAULT TRUE
+);
+
+-- 2. Aggregated Cognitive Telemetry (Every 2s interval)
+CREATE TABLE analytics (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  lecture_id UUID REFERENCES lectures(id) ON DELETE CASCADE,
+  timestamp TIMESTAMPTZ DEFAULT NOW(),
+  rolling_average NUMERIC(4, 2) NOT NULL, -- Range: 0.00 to 10.00
+  sample_count INT NOT NULL
+);
+
+-- 3. Q&A Logs & Escalated Questions
+CREATE TABLE chat_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  lecture_id UUID REFERENCES lectures(id) ON DELETE CASCADE,
+  student_id TEXT NOT NULL,
+  question TEXT NOT NULL,
+  ai_answer TEXT,
+  quote TEXT,
+  is_escalated BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Post-Lecture Summaries & Artifacts
+CREATE TABLE summaries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  lecture_id UUID REFERENCES lectures(id) ON DELETE CASCADE,
+  notes_markdown TEXT NOT NULL,
+  key_takeaways JSONB DEFAULT '[]'::jsonb,
+  generated_visuals JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
