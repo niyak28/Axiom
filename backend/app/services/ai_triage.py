@@ -28,7 +28,10 @@ async def _call_llm(question: str, transcript_context: str) -> tuple[str, str | 
 
     Returns: (answer, supporting_quote_or_None, resolved)
     """
-    raise NotImplementedError
+    answer = f"Mocked AI response to: {question}"
+    quote = "Mocked transcript snippet"
+    resolved = True
+    return answer, quote, resolved
 
 
 async def triage_question(lecture_id: str, student_id: str, question: str) -> AskQuestionResponse:

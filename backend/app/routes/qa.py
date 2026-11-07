@@ -16,14 +16,14 @@ router = APIRouter(prefix="/api/qa", tags=["qa"])
 
 @router.post("/ask", response_model=AskQuestionResponse)
 async def ask_question(payload: AskQuestionRequest) -> AskQuestionResponse:
-    # DECISION NEEDED (Section 12.5): sync vs async response — see ai_triage.py.
-    result = await triage_question(
-        lecture_id=payload.lectureId,
-        student_id=payload.studentId,
-        question=payload.question,
-    )
-
+    print(">>> HIT /api/qa/ask ENDPOINT SUCCESSFULLY <<<")
     try:
+        result = await triage_question(
+            lecture_id=payload.lectureId,
+            student_id=payload.studentId,
+            question=payload.question,
+        )
+
         await insert_chat_log(
             lecture_id=payload.lectureId,
             student_id=payload.studentId,
@@ -32,14 +32,11 @@ async def ask_question(payload: AskQuestionRequest) -> AskQuestionResponse:
             quote=result.quote,
             is_escalated=not result.resolved,
         )
-    except NotImplementedError:
-        pass  # stub
-
-    # TODO: if not result.resolved, route to escalation (auto, or require
-    # explicit POST /api/qa/escalate from the client? not documented).
-
-    return result
-
+        return result
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise e
 
 @router.post("/escalate", response_model=EscalateQuestionResponse)
 async def escalate_question(payload: EscalateQuestionRequest) -> EscalateQuestionResponse:
