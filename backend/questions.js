@@ -2,7 +2,7 @@
 // Answers with Gemini, saves to chat_logs, and pushes real-time updates over Socket.IO.
 import { randomUUID } from "crypto";
 import { answerQuestion } from "./ai/triage.js";
-import { getLecture, getChatLog, saveChatLog, escalateChatLog } from "./state/store.js";
+import { getLecture, getChatLog, saveChatLog, escalateChatLog, listChatLogs } from "./state/store.js";
 import { getDemoLecture } from "./demo.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -37,6 +37,27 @@ async function resolveLecture(lectureId) {
 
 const profRoom = (lectureId) => `prof:${lectureId}`;
 
+// The professor's queue as the frontend expects it: { lectureId, questions: [...] },
+// always the full list of escalated questions (the frontend replaces its queue with it).
+export async function getQueuePayload(lectureId) {
+  const rows = await listChatLogs(lectureId, { escalatedOnly: true });
+  return {
+    lectureId,
+    questions: rows.map((r) => ({
+      questionId: r.questionId, studentId: r.studentId, question: r.question,
+      aiAnswer: r.aiAnswer, quote: r.quote, status: "escalated", createdAt: r.createdAt,
+    })),
+  };
+}
+
+async function broadcastQueue(io, lectureId) {
+  try {
+    io.to(profRoom(lectureId)).emit("qna_queue_update", await getQueuePayload(lectureId));
+  } catch (e) {
+    console.error("broadcasting queue failed:", e.message);
+  }
+}
+
 /**
  * POST /api/qa/ask
  * body: { lectureId, studentId, question, videoTime? }
@@ -70,7 +91,7 @@ export async function askQuestion(io, body = {}) {
   // and the professor's queue when the AI couldn't answer.
   const event = { questionId, lectureId: lecture.id, studentId, question, ...ans, videoTime, createdAt };
   io.to(lecture.id).emit("question_answered", event);
-  if (!ans.resolved) io.to(profRoom(lecture.id)).emit("qna_queue_update", { ...event, status: "escalated" });
+  if (!ans.resolved) await broadcastQueue(io, lecture.id);
 
   return { questionId, aiAnswer: ans.aiAnswer, quote: ans.quote, resolved: ans.resolved };
 }
@@ -93,12 +114,6 @@ export async function escalateQuestion(io, body = {}) {
   const lectureId = existing?.lectureId ?? (await resolveLecture(body.lectureId)).id;
 
   const newlyEscalated = await escalateChatLog({ questionId, lectureId, studentId, question });
-  if (newlyEscalated) {
-    io.to(profRoom(lectureId)).emit("qna_queue_update", {
-      questionId, lectureId, studentId, question,
-      aiAnswer: existing?.aiAnswer ?? null, quote: existing?.quote ?? null,
-      videoTime: existing?.videoTimeSec ?? null, status: "escalated", createdAt: new Date().toISOString(),
-    });
-  }
+  if (newlyEscalated) await broadcastQueue(io, lectureId);
   return { success: true, status: "escalated" };
 }

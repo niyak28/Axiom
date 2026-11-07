@@ -3,7 +3,7 @@ export default function QuestionCard({ question, aiAnswer, status, quote }) {
     <article className="question-card">
       <div className="question-card-meta microcopy">
         <span>{status === "escalated" ? "Professor queue" : "AI resolution"}</span>
-        <span className={`status ${status === "resolved" ? "status-ok" : ""}`}>
+        <span className={`status ${status === "resolved" ? "status-ok" : status === "error" ? "status-error" : ""}`}>
           {status}
         </span>
       </div>

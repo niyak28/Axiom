@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { askQuestion } from "../../api/client";
 import AppShell from "../common/AppShell";
 import RaiseHand from "../common/RaiseHand";
 import Slider from "../common/Slider";
@@ -37,28 +38,37 @@ export default function StudentView({ activeView, onNavigate }) {
     }
   };
 
-  const handleQuestion = (event) => {
+  const handleQuestion = async (event) => {
     event.preventDefault();
     const trimmed = question.trim();
-    if (!trimmed) return;
-    const payload = { lectureId, studentId, question: trimmed };
-    console.info("Mock question payload", payload);
+    if (!trimmed || isAnswering) return;
     setIsAnswering(true);
-    window.setTimeout(() => {
+    try {
+      // POST /api/qa/ask -> { questionId, aiAnswer, quote, resolved }
+      const { questionId, aiAnswer, quote, resolved } = await askQuestion({
+        lectureId,
+        studentId,
+        question: trimmed,
+      });
       setSubmittedQuestions((items) => [
-        {
-          questionId: `mock-${Date.now()}`,
-          question: trimmed,
-          aiAnswer:
-            "An eigenvector keeps its direction while the transformation scales its magnitude by λ.",
-          quote: "For Av = λv, v defines an invariant direction of the transformation.",
-          status: "resolved",
-        },
+        { questionId, question: trimmed, aiAnswer, quote, status: resolved ? "resolved" : "escalated" },
         ...items,
       ]);
       setQuestion("");
+    } catch (error) {
+      setSubmittedQuestions((items) => [
+        {
+          questionId: `error-${Date.now()}`,
+          question: trimmed,
+          aiAnswer: `Could not reach the AI: ${error?.message || "unknown error"}`,
+          quote: null,
+          status: "error",
+        },
+        ...items,
+      ]);
+    } finally {
       setIsAnswering(false);
-    }, 450);
+    }
   };
 
   return (

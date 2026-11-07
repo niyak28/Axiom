@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 import { aiRoutes } from "./routes/ai.js";
 import { STORAGE } from "./state/store.js";
 import { ensureDemoLecture, getDemoLecture } from "./demo.js";
+import { getQueuePayload } from "./questions.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -16,7 +17,16 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
-  // { lectureId?, role? }  Any lectureId that isn't a known lecture UUID means the demo lecture.
+  // The frontend doesn't send join_lecture, so every connection joins the demo lecture
+  // (and its professor room) automatically and gets the current professor queue.
+  const demo = getDemoLecture();
+  if (demo) {
+    socket.join(demo.id);
+    socket.join(`prof:${demo.id}`);
+    getQueuePayload(demo.id).then((q) => socket.emit("qna_queue_update", q)).catch(() => {});
+  }
+
+  // Optional explicit join: { lectureId?, role? }  Any lectureId that isn't a known lecture UUID means the demo lecture.
   socket.on("join_lecture", ({ lectureId, role } = {}) => {
     const demo = getDemoLecture();
     const id = UUID_RE.test(lectureId || "") ? lectureId : demo?.id;
