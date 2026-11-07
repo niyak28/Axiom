@@ -45,3 +45,14 @@ async def get_summary(lecture_id: str) -> dict | None:
 async def ping_db() -> bool:
     """Lightweight connectivity check for POST /api/rehearsal/ping."""
     raise NotImplementedError
+
+async def ping_db() -> bool:
+    """Lightweight connectivity check for POST /api/rehearsal/ping."""
+    try:
+        client = get_supabase()
+        # Query a lightweight table from Section 7 (e.g., lectures) to verify connectivity
+        client.table("lectures").select("id", count="exact").limit(1).execute()
+        return True
+    except Exception as e:
+        print(f"DB ping error: {e}")
+        return False
