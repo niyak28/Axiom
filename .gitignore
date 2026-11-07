@@ -16,3 +16,7 @@ Thumbs.db
 # Postman local workspace folders
 .postman/
 postman/
+
+# Python bytecode
+__pycache__/
+*.pyc
