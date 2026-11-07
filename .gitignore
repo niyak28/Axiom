@@ -10,3 +10,7 @@ logs
 npm-debug.log*
 .DS_Store
 Thumbs.db
+
+# Postman local workspace folders
+.postman/
+postman/
