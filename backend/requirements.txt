@@ -1,2 +1,12 @@
-fastapi[standard]
+fastapi
+uvicorn[standard]
+python-socketio
+pydantic
+pydantic-settings
+redis
 supabase
+python-multipart
+httpx
+pytest
+pytest-asyncio
+python-socketio
