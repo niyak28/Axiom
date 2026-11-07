@@ -1,6 +1,7 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import confusionFixture from "../mock/dummyConfusion.json";
 import questionsFixture from "../mock/dummyQuestions.json";
+import { demoTranscript } from "../mock/demoLecture";
 
 const LectureContentContext = createContext(null);
 
@@ -9,7 +10,7 @@ export function LectureContentProvider({ children }) {
     confusionFixture.rollingAverage,
   );
   const [sampleCount, setSampleCount] = useState(confusionFixture.sampleCount);
-  const [isQnaOpen, setIsQnaOpen] = useState(false);
+  const [isQnaOpen, setIsQnaOpen] = useState(true);
   const [questions, setQuestions] = useState(questionsFixture);
   const [visualStream, setVisualStream] = useState({
     frameType: "linear_transformation",
@@ -20,8 +21,30 @@ export function LectureContentProvider({ children }) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [demoTick, setDemoTick] = useState(0);
   const lectureId = "lecture_01";
   const studentId = "student_01";
+  const transcriptIndex = demoTick % demoTranscript.length;
+  const activeTranscript = demoTranscript[transcriptIndex];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setDemoTick((current) => current + 1);
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    setRollingAverage(activeTranscript.comprehension);
+    setSampleCount(118 + (transcriptIndex % 3));
+    setVisualStream({
+      frameType: "linear_transformation",
+      data: {
+        matrix: activeTranscript.matrix,
+        eigenvalues: activeTranscript.eigenvalues,
+      },
+    });
+  }, [activeTranscript, transcriptIndex]);
 
   const updateRollingAverage = useCallback((value, count) => {
     setRollingAverage(Number(value) || 0);
@@ -54,6 +77,10 @@ export function LectureContentProvider({ children }) {
       isQnaOpen,
       questions,
       visualStream,
+      demoTick,
+      transcriptIndex,
+      activeTranscript,
+      demoTranscript,
       lectureId,
       studentId,
       isLoading,
@@ -72,6 +99,9 @@ export function LectureContentProvider({ children }) {
       isQnaOpen,
       questions,
       visualStream,
+      demoTick,
+      transcriptIndex,
+      activeTranscript,
       isLoading,
       error,
       updateRollingAverage,

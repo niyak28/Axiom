@@ -13,6 +13,7 @@ export default function ProfessorView({ activeView, onNavigate }) {
     isQnaOpen,
     questions,
     lectureId,
+    demoTick,
     updateQnaState,
   } = useLectureContent();
   const [selectedId, setSelectedId] = useState(null);
@@ -67,11 +68,15 @@ export default function ProfessorView({ activeView, onNavigate }) {
           <section className="module metric-strip">
             <div><span className="microcopy">Connected endpoints</span><strong>{sampleCount}</strong><small>{sampleCount} / {sampleCount} enrolled</small></div>
             <div><span className="microcopy">Mean comprehension</span><strong>{rollingAverage.toFixed(2)}</strong><small>Live telemetry · 2 s interval</small></div>
-            <div><span className="microcopy">Below threshold</span><strong>{Math.round((1 - rollingAverage) * 46)}</strong><small>Confidence &lt; 0.40</small></div>
+            <div><span className="microcopy">Below threshold</span><strong>{Math.round((1 - rollingAverage) * 46)}</strong><small>Illustrative estimate · confidence &lt; 0.40</small></div>
             <div><span className="microcopy">Resolved silently</span><strong>93.0%</strong><small>{resolved.length} / {questions.length} intercepted questions</small></div>
           </section>
 
-          <Heatmap rollingAverage={rollingAverage} sampleCount={sampleCount} />
+          <Heatmap
+            rollingAverage={rollingAverage}
+            sampleCount={sampleCount}
+            demoTick={demoTick}
+          />
 
           <section className="module recording-module">
             <header className="module-header">
