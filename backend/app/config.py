@@ -21,6 +21,9 @@ class Settings(BaseSettings):
 
     # --- Redis ---
     redis_url: str = "redis://localhost:6379/0"
+    # Dev convenience: keep telemetry scores in process memory instead of Redis
+    # so the endpoint works without a Redis server. Set USE_IN_MEMORY_REDIS=true.
+    use_in_memory_redis: bool = False
 
     # --- LLM (provider not specified in project context) ---
     llm_provider: str = ""

@@ -1,0 +1,16 @@
+{
+  "lectureId": "lecture_01",
+  "notesMarkdown": "Eigenvalues describe how a linear transformation scales special directions. For Av = λv, the vector v retains its direction.",
+  "keyTakeaways": [
+    "Eigenvectors preserve direction under a linear transformation.",
+    "The determinant equals the product of the eigenvalues.",
+    "A matrix is diagonalizable when it has a complete eigenbasis."
+  ],
+  "generatedVisuals": [
+    {
+      "frameType": "linear_transformation",
+      "title": "Transformation A",
+      "data": { "eigenvalues": [3, 2, 1] }
+    }
+  ]
+}

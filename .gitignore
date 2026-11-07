@@ -12,6 +12,7 @@ npm-debug.log*
 Thumbs.db
 
 /venv
+__pycache__/
 
 # Postman local workspace folders
 .postman/

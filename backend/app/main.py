@@ -42,6 +42,13 @@ fastapi_app = create_app()
 app = socketio.ASGIApp(sio, other_asgi_app=fastapi_app)
 
 
+if __name__ == "__main__":
+    # `python -m app.main` from the backend/ folder.
+    import uvicorn
+
+    uvicorn.run("app.main:app", host="0.0.0.0", port=settings.port, reload=True)
+
+
 # --- Lifecycle ---
 # TODO: on startup, warm up Redis/Supabase connections; on shutdown, cancel
 # any running `aggregation_loop` / `mock_slider_loop` tasks per active
