@@ -1,0 +1,42 @@
+[
+  {
+    "questionId": "q-038",
+    "studentId": "student_18",
+    "question": "Is λ = 0 a valid eigenvalue?",
+    "aiAnswer": "Yes. A zero eigenvalue means the matrix is singular.",
+    "quote": "An eigenvalue may be zero when the transformation collapses a dimension.",
+    "status": "resolved"
+  },
+  {
+    "questionId": "q-039",
+    "studentId": "student_07",
+    "question": "Are eigenvectors unique?",
+    "aiAnswer": "No. Every nonzero scalar multiple is also an eigenvector.",
+    "quote": "Direction, rather than magnitude, identifies the eigenspace.",
+    "status": "resolved"
+  },
+  {
+    "questionId": "q-041",
+    "studentId": "student_31",
+    "question": "Can a repeated eigenvalue have only one eigenvector?",
+    "aiAnswer": "This depends on geometric multiplicity and diagonalizability.",
+    "quote": "",
+    "status": "escalated"
+  },
+  {
+    "questionId": "q-042",
+    "studentId": "student_44",
+    "question": "What changes when A is not diagonalizable?",
+    "aiAnswer": "",
+    "quote": "",
+    "status": "escalated"
+  },
+  {
+    "questionId": "q-043",
+    "studentId": "student_62",
+    "question": "Will complex eigenvalues be covered today?",
+    "aiAnswer": "",
+    "quote": "",
+    "status": "escalated"
+  }
+]
