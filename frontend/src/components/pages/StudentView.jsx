@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import AppShell from "../common/AppShell";
 import RaiseHand from "../common/RaiseHand";
 import Slider from "../common/Slider";
@@ -6,15 +6,26 @@ import { useLectureContent } from "../contexts/LectureContent";
 import useFrictionTelemetry from "../hooks/useFrictionTelemetry";
 import VisualCanvas from "../lecture/VisualCanvas";
 import QuestionList from "../qa/QuestionList";
+import { demoQuestions, resolveDemoQuestion } from "../mock/demoLecture";
 
 export default function StudentView({ activeView, onNavigate }) {
-  const { lectureId, studentId, visualStream, isQnaOpen } = useLectureContent();
+  const {
+    lectureId,
+    studentId,
+    visualStream,
+    isQnaOpen,
+    demoTick,
+    transcriptIndex,
+    activeTranscript,
+    demoTranscript,
+  } = useLectureContent();
   const [friction, setFriction] = useState(7);
   const [lastSent, setLastSent] = useState("09:41:24");
   const [isRaised, setIsRaised] = useState(false);
   const [question, setQuestion] = useState("");
   const [submittedQuestions, setSubmittedQuestions] = useState([]);
   const [isAnswering, setIsAnswering] = useState(false);
+  const transcriptRef = useRef(null);
   const {
     submitFriction,
     isSubmitting: isSendingFriction,
@@ -26,6 +37,26 @@ export default function StudentView({ activeView, onNavigate }) {
     () => matrix.map((row) => `│ ${row.join("   ")} │`).join("\n"),
     [matrix],
   );
+  const eigenvalues = visualStream?.data?.eigenvalues || [3, 2, 1];
+  const determinant = eigenvalues.reduce((product, value) => product * value, 1);
+  const visibleTranscript = useMemo(() => {
+    const start = Math.max(0, transcriptIndex - 3);
+    return demoTranscript.slice(start, transcriptIndex + 1);
+  }, [demoTranscript, transcriptIndex]);
+  const suggestedQuestions = useMemo(
+    () =>
+      Array.from({ length: 5 }, (_, index) =>
+        demoQuestions[(transcriptIndex * 2 + index) % demoQuestions.length],
+      ),
+    [transcriptIndex],
+  );
+
+  useEffect(() => {
+    const transcript = transcriptRef.current;
+    if (transcript) {
+      transcript.scrollTo({ top: transcript.scrollHeight, behavior: "smooth" });
+    }
+  }, [demoTick]);
 
   const handleFriction = async (score) => {
     setFriction(score);
@@ -41,24 +72,25 @@ export default function StudentView({ activeView, onNavigate }) {
     event.preventDefault();
     const trimmed = question.trim();
     if (!trimmed) return;
-    const payload = { lectureId, studentId, question: trimmed };
-    console.info("Mock question payload", payload);
     setIsAnswering(true);
     window.setTimeout(() => {
+      const resolved = resolveDemoQuestion(trimmed);
       setSubmittedQuestions((items) => [
         {
-          questionId: `mock-${Date.now()}`,
+          ...resolved,
+          questionId: `${resolved.questionId}-${Date.now()}`,
           question: trimmed,
-          aiAnswer:
-            "An eigenvector keeps its direction while the transformation scales its magnitude by λ.",
-          quote: "For Av = λv, v defines an invariant direction of the transformation.",
-          status: "resolved",
         },
         ...items,
       ]);
       setQuestion("");
       setIsAnswering(false);
-    }, 450);
+    }, 650);
+  };
+
+  const useDemoPrompt = (prompt) => {
+    setQuestion(prompt);
+    document.getElementById("student-question")?.focus();
   };
 
   return (
@@ -119,25 +151,28 @@ export default function StudentView({ activeView, onNavigate }) {
         <div className="workspace-grid">
           <aside className="notes-capture">
             <span className="microcopy">Live lecture transcript</span>
-            <div className="transcript-preview">
-              <span className="status status-live">Listening / live</span>
-              <p>
-                “For an eigenvector, the transformation changes magnitude while
-                preserving direction.”
-              </p>
-              <p>
-                “We find the eigenvalues by solving the characteristic equation
-                det(A − λI) = 0.”
-              </p>
+            <div className="transcript-preview" ref={transcriptRef} aria-live="polite">
+              <div className="transcript-status">
+                <span className="status status-live">Listening / live</span>
+                <span className="microcopy">{String(transcriptIndex + 1).padStart(2, "0")} / {demoTranscript.length}</span>
+              </div>
+              {visibleTranscript.map((line, index) => (
+                <p
+                  className={index === visibleTranscript.length - 1 ? "is-current" : ""}
+                  key={`${transcriptIndex}-${line.text}`}
+                >
+                  “{line.text}”
+                </p>
+              ))}
             </div>
             <p className="microcopy">Live symbol extraction</p>
-            <code>A = diag(3, 2, 1)<br />Av = λv</code>
-            <div className="capture-stats microcopy"><span>12 symbols</span><span>99.2% match</span></div>
+            <code>{activeTranscript.symbol}<br />Av = λv</code>
+            <div className="capture-stats microcopy"><span>{12 + transcriptIndex * 3} symbols</span><span>99.2% match</span></div>
           </aside>
           <div className="visual-area">
             <div className="visual-labels microcopy"><span>R³ / Linear transformation</span><span>Basis view</span></div>
             <VisualCanvas frame={visualStream} />
-            <div className="visual-labels microcopy"><span>Camera [35°, 24°]</span><span>Orthographic</span></div>
+            <div className="visual-labels microcopy"><span>Drag to orbit / wheel to zoom</span><span>Interactive 3D</span></div>
           </div>
           <aside className="model-parameters">
             <span className="microcopy">Model parameters</span>
@@ -146,8 +181,8 @@ export default function StudentView({ activeView, onNavigate }) {
             <dl>
               <div><dt>Dimension</dt><dd>3 × 3</dd></div>
               <div><dt>Rank</dt><dd>3</dd></div>
-              <div><dt>Determinant</dt><dd>6</dd></div>
-              <div><dt>Eigenvalues</dt><dd>3, 2, 1</dd></div>
+              <div><dt>Determinant</dt><dd>{determinant.toFixed(2)}</dd></div>
+              <div><dt>Eigenvalues</dt><dd>{eigenvalues.join(", ")}</dd></div>
             </dl>
             <div className="converged-box microcopy">Model converged<br />Residual &lt; 10⁻⁶</div>
           </aside>
@@ -179,6 +214,20 @@ export default function StudentView({ activeView, onNavigate }) {
             <button className="primary-button" disabled={isAnswering || !question.trim()}>
               {isAnswering ? "Resolving…" : "Submit to AI"}
             </button>
+          </div>
+          <div className="demo-prompts">
+            <span className="microcopy">Suggested questions</span>
+            <div>
+              {suggestedQuestions.map((item) => (
+                <button
+                  type="button"
+                  key={item.questionId}
+                  onClick={() => useDemoPrompt(item.question)}
+                >
+                  {item.question}
+                </button>
+              ))}
+            </div>
           </div>
         </form>
         <div className="answer-region">
