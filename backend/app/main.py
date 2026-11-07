@@ -15,10 +15,13 @@ from app.sockets.handlers import sio
 def create_app() -> FastAPI:
     app = FastAPI(title="Axiom Backend")
 
+    # Hackathon scope: no auth, so CORS just needs to let the frontend
+    # through. allow_credentials=True isn't needed without cookies/sessions,
+    # so it's left off to allow a wildcard origin if that's ever simpler
+    # than maintaining settings.cors_allowed_origins.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_allowed_origins,
-        allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )

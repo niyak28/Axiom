@@ -2,9 +2,9 @@
 Supabase client wrapper.
 
 Tables (Section 7): lectures, analytics, chat_logs, summaries.
-No auth/RLS is documented yet (Section 12.10) — this client uses the
-service role key, so route-level authorization (if any) must be enforced
-in the route layer, not assumed here.
+Hackathon scope: no RLS policies and no route-level authorization — this
+client uses the service role key and that's fine as-is (Section 12.10's
+"no auth documented" is resolved as "not needed," not "still open").
 """
 
 from supabase import create_client, Client
