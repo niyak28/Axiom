@@ -25,11 +25,32 @@ def telemetry_key(lecture_id: str) -> str:
     return f"telemetry:{lecture_id}:scores"
 
 
+class _InMemoryRedis:
+    """Minimal stand-in for the hash commands we use (dev only)."""
+
+    def __init__(self) -> None:
+        self._hashes: dict[str, dict[str, str]] = {}
+
+    async def hset(self, key: str, field: str, value) -> None:
+        self._hashes.setdefault(key, {})[field] = str(value)
+
+    async def hgetall(self, key: str) -> dict[str, str]:
+        return dict(self._hashes.get(key, {}))
+
+
+_memory_client = _InMemoryRedis()
+
+
+def _store():
+    return _memory_client if settings.use_in_memory_redis else get_redis()
+
+
 async def record_score(lecture_id: str, student_id: str, score: int) -> None:
-    """TODO: push/update this student's latest score for the lecture."""
-    raise NotImplementedError
+    """Store this student's latest score for the lecture (one entry per student)."""
+    await _store().hset(telemetry_key(lecture_id), student_id, score)
 
 
 async def get_current_scores(lecture_id: str) -> dict[str, int]:
-    """TODO: return {student_id: score} snapshot used by the aggregator."""
-    raise NotImplementedError
+    """Return {student_id: score} snapshot used by the aggregator."""
+    raw = await _store().hgetall(telemetry_key(lecture_id))
+    return {student_id: int(score) for student_id, score in raw.items()}
