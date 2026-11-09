@@ -2,7 +2,7 @@
 
 Real-time lecture intelligence copilot turning silent lecture halls into adaptive learning environments via live cognitive telemetry, instant transcript-cited AI doubt triage, and dynamic 2D/3D math visualizations.
 
- axiom-nine-azure.vercel.app
+
 
 ## 🛑 The Fear Behind The Fails: Problem Definition & Context
 **72% of university students** experience debilitating anxiety when asking questions during live lectures, while **61% of professors** wait until final exam grading to identify conceptual bottlenecks
