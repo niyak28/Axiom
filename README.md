@@ -4,7 +4,7 @@ Real-time lecture intelligence copilot turning silent lecture halls into adaptiv
 
 
 
-## 🛑 The Fear Behind The Fails: Problem Definition & Context
+## The Fear Behind The Fails: Problem Definition & Context
 **72% of university students** experience debilitating anxiety when asking questions during live lectures, while **61% of professors** wait until final exam grading to identify conceptual bottlenecks
 
 This silence leaves educators teaching completely blind to where comprehension breaks down. When foundational concepts are missed early, misunderstandings compound rapidly as technical course material advances
@@ -26,14 +26,14 @@ Concurrently, student confusion data is anonymized into a real-time cognitive te
 
 **Permanent Supabase Persistence:** PostgreSQL tables securely persisting active lecture sessions, historical telemetry logs, chat logs, and automated post-lecture summaries
 
-## 🚧 Challenges We Ran Into: Engineering & Feasibility
+## Challenges We Ran Into: Engineering & Feasibility
 1. **API & Data Alignment:** Locked strict data shapes and contracts early to keep the frontend, backend, and Supabase layers completely synchronized.
 
 2.  **High-Volume Telemetry Ingestion:** Engineered a Redis rolling-window cache to aggregate real-time slider releases without degrading database performance.
 3.  **AI Latency Under Concurrency:** Decoupled transcript buffering and multimodal math parsing into background workers so live socket threads never froze.
 4. **Live Stream Feed Constraints:** Pivoted from complex custom video streaming to a synchronized embedded broadcast stream to stay reliable during the 12-hour limit.
 
-## 🚀 Up Next For Axiom: Educational Impact & Scaling
+## Up Next For Axiom: Educational Impact & Scaling
 **Automated Post-Lecture Analytics:** Generate comprehensive comprehension audits highlighting specific timestamps and concepts where friction peaked.
 
  **Curated Student Retrospectives:** Auto-compile session transcripts, resolved student doubts, and dynamic visual canvas artifacts into structured study digests.
