@@ -11,13 +11,13 @@ This silence leaves educators teaching completely blind to where comprehension b
 
 Traditional feedback channels like office hours or post-lecture emails remain delayed, reactive, and rarely used by the students who struggle most By the time exam scores reveal these deficits, the critical window for academic intervention has already closed
 
-## 💡 Fixing The Foundations: Axiom & Inclusive Solution
+## Fixing The Foundations: Axiom & Inclusive Solution
 Axiom replaces post-lecture blind spots with immediate, real-time intervention, serving as an adaptive AI teaching assistant across the lecture hall By tapping into live lecture feeds, Axiom resolves student doubts dynamically as they emerge
 
 The platform decodes friction using live transcript-cited explanations and multi-dimensional visual math renderings—keeping learners unstuck without disrupting the speaker or isolating students with accessibility needs
 Concurrently, student confusion data is anonymized into a real-time cognitive telemetry stream, equipping professors with an ambient heatmap to spot comprehension bottlenecks instantly and adapt on the fly.
 
-## ⚙️ The Mechanics: Technical Architecture & AI Implementation
+## The Mechanics: Technical Architecture & AI Implementation
  **High-Frequency Redis Cache:** In-memory sliding-window cache rolling room-wide cognitive friction averages every two seconds without hitting persistent storage
 
  **Multimodal AI Triage & Visuals:** Live audio transcript buffering for instant, cited question answering paired with dynamic 2D/3D visual math rendering
